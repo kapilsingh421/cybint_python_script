@@ -74,7 +74,7 @@ def create_instances():
     # Dry run succeeded, run start_instances without dryrun
     try:
         print("Launch instance ...")
-        instances = ec2_resource.create_instances(ImageId='ami-07ebfd5b3428b6f4d', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'myvpc_api',                                  SubnetId = 'subnet-5c02b83b')         
+        instances = ec2_resource.create_instances(ImageId='ami-07ebfd5b3428b6f4d', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'cybint_staging',                                  SubnetId = 'subnet-0c6d065ada4820c5f')         
         print("Success", "INSTANCE LAUNCHED", instances)
         instance = instances[0]
         instance.wait_until_running()
