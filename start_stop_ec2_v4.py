@@ -79,9 +79,9 @@ def create_instances():
         instance = instances[0]
         instance.wait_until_running()
         instance.load()
-        for instance in instances:
-            print(instance.id)
-            print(instance.public_ip_address)
+       # for instance in instances:
+        print(instance.id)
+        print(instance.public_ip_address)
     except ClientError as e:
         print(e)
 
