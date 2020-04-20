@@ -22,6 +22,7 @@ class Mem:
     Declare globals here.
     """
     instance_id = "i-0f6927a0eb7486107"
+    ami_id= "ami-088dc85c8883d4298"
 
 
 def parse_arguments():
@@ -39,7 +40,8 @@ def parse_arguments():
            '-r', '--run' , help ="Launch the Ec2 instance", action='store_true')
     parser.add_argument(
            '-t', '--terminate' , help ="Terminate the Ec2 instance", action='store_true')
-
+    parser.add_argument(
+           '-a', '--ami' , help ="Decsribe the  Ami", action='store_true')
     parser.add_argument(
         '-v', '--version', help="Display the current version", action='store_true')
     args = parser.parse_args()
@@ -59,6 +61,8 @@ def evaluate(args):
         stop_ec2()
     elif args.terminate:
          terminate_ec2()
+    elif args.ami:
+         get_image()
     elif args.version:
         print()
         print('This is version {0}.'.format(VERSION))
@@ -116,7 +120,8 @@ def start_ec2():
     # Dry run succeeded, run start_instances without dryrun
     try:
         print("Start instance without dry run...")
-        response = ec2.start_instances(InstanceIds=[Mem.instance_id], DryRun=False)
+        instances = ec2.start_instances(InstanceIds=[Mem.instance_id], DryRun=False)
+        instance = instances[0]
         print("Success","Started",response)
         fetch_public_ip()
     except ClientError as e:
@@ -166,7 +171,32 @@ def terminate_ec2():
     # Dry run succeeded, call terminate_instances without dryrun
     try:
         response = ec2.terminate_instances(InstanceIds=[Mem.instance_id], DryRun=False)
-        print("Success","Terminate",response)
+        print("Success","Terminate")
+    except ClientError as e:
+        print(e)
+
+
+def get_image():
+    """
+    This code is from Amazon's EC2 Boto3
+    Do a dryrun first to verify permissions.
+    Try to Describe  the EC2 AMI.
+    """
+    print("------------------------------")
+    print("Try to Describe the EC2 Image.")
+    print("------------------------------")
+
+    try:
+        ec2.describe_images(ImageIds=[Mem.ami_id], DryRun=True)
+    except ClientError as e:
+        if 'DryRunOperation' not in str(e):
+            raise
+
+    # Dry run succeeded, call Describes_Ami without dryrun
+    try:
+        image = ec2.describe_images(ImageIds=[Mem.ami_id], DryRun=False)
+        print("API Success")
+        print(image)
     except ClientError as e:
         print(e)
 
