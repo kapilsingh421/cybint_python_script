@@ -10,7 +10,11 @@ ec2 = boto3.client('ec2')
 #client = boto3.client('ec2')
 ec2_resource = boto3.resource('ec2')
 instance_id = 'i-0f6927a0eb7486107'
-
+tags = [
+        {'Key':'Name','Value': 'cybint'},
+        {'Key':'Env', 'Value': 'staging'},
+       ]
+tag_specification = [{'ResourceType': 'instance', 'Tags': tags},]
 
 class Mem:
     """
@@ -74,14 +78,19 @@ def create_instances():
     # Dry run succeeded, run start_instances without dryrun
     try:
         print("Launch instance ...")
-        instances = ec2_resource.create_instances(ImageId='ami-0fc20dd1da406780b', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'myvpc',                                     SubnetId = 'subnet-e5996b8d')         
+        instances = ec2_resource.create_instances(ImageId='ami-0fc20dd1da406780b', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'myvpc',                                     SubnetId = 'subnet-e5996b8d' ,TagSpecifications=tag_specification)     
         print("Success", "INSTANCE LAUNCHED", instances)
         instance = instances[0]
         instance.wait_until_running()
         instance.load()
-       # for instance in instances:
+        for instance in instances:
+            for tag in instance.tags:
+               if tag['Key'] == 'Name':
+                   print (tag['Value'])
         print(instance.id)
         print(instance.public_ip_address)
+        
+
     except ClientError as e:
         print(e)
 
