@@ -9,6 +9,8 @@ VERSION = '1.5.0'
 ec2 = boto3.client('ec2')
 #client = boto3.client('ec2')
 ec2_resource = boto3.resource('ec2')
+user_data = '''#!/bin/bash
+echo -e "linuxpassword\nlinuxpassword" | passwd ubuntu'''
 instance_id = 'i-0f6927a0eb7486107'
 tags = [
         {'Key':'Name','Value': 'cint'},
@@ -82,7 +84,7 @@ def create_instances():
     # Dry run succeeded, run start_instances without dryrun
     try:
         print("Launch instance ...")
-        instances = ec2_resource.create_instances(ImageId='ami-0fc20dd1da406780b', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'myvpc',                                     SubnetId = 'subnet-e5996b8d' ,TagSpecifications=tag_specification)     
+        instances = ec2_resource.create_instances(ImageId='ami-0fc20dd1da406780b', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'myvpc',                                     SubnetId = 'subnet-e5996b8d' ,TagSpecifications=tag_specificationi ,UserData=user_data)     
         print("Success", "INSTANCE LAUNCHED", instances)
         instance = instances[0]
         while instance.state['Name'] not in ('running','stopped'):
