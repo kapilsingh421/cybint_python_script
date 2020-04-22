@@ -9,11 +9,12 @@ VERSION = '1.5.0'
 ec2 = boto3.client('ec2')
 #client = boto3.client('ec2')
 ec2_resource = boto3.resource('ec2')
+#echo -e "linuxpassword\nlinuxpassword" | passwd ubuntu'''
 user_data = '''#!/bin/bash
 echo -e "linuxpassword\nlinuxpassword" | passwd ubuntu'''
 instance_id = 'i-0f6927a0eb7486107'
 tags = [
-        {'Key':'Name','Value': 'cint'},
+        {'Key':'Name','Value': 'cybint'},
         {'Key':'Env', 'Value': 'staging'},
        ]
 tag_specification = [{'ResourceType': 'instance', 'Tags': tags},]
@@ -84,7 +85,7 @@ def create_instances():
     # Dry run succeeded, run start_instances without dryrun
     try:
         print("Launch instance ...")
-        instances = ec2_resource.create_instances(ImageId='ami-0fc20dd1da406780b', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'myvpc',                                     SubnetId = 'subnet-e5996b8d' ,TagSpecifications=tag_specificationi ,UserData=user_data)     
+        instances = ec2_resource.create_instances(ImageId='ami-0473608a4fdd2ce7a', MinCount=1, MaxCount=1, InstanceType = 't2.micro', KeyName = 'cybint_staging',                                     SubnetId = 'subnet-0c6d065ada4820c5f' ,TagSpecifications=tag_specification ,UserData=user_data)     
         print("Success", "INSTANCE LAUNCHED", instances)
         instance = instances[0]
         while instance.state['Name'] not in ('running','stopped'):
