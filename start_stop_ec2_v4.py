@@ -3,6 +3,7 @@ import os
 import time
 import argparse
 import boto3.ec2
+import rsa,boto, base64
 from botocore.exceptions import ClientError
 
 VERSION = '1.5.0'
@@ -12,7 +13,7 @@ ec2_resource = boto3.resource('ec2')
 #echo -e "linuxpassword\nlinuxpassword" | passwd ubuntu'''
 user_data = '''#!/bin/bash
 echo -e "linuxpassword\nlinuxpassword" | passwd ubuntu'''
-instance_id = 'i-0f6927a0eb7486107'
+instance_id = 'i-0acc3acb246c19354'
 tags = [
         {'Key':'Name','Value': 'cybint'},
         {'Key':'Env', 'Value': 'staging'},
@@ -44,6 +45,8 @@ def parse_arguments():
     parser.add_argument(
            '-t', '--terminate' , help ="Terminate the Ec2 instance", action='store_true')
     parser.add_argument(
+           '-p', '--password' , help ="password of the Ec2 windows instance", action='store_true')
+    parser.add_argument(
            '-a', '--ami' , help ="Decsribe the  Ami", action='store_true')
     parser.add_argument(
         '-v', '--version', help="Display the current version", action='store_true')
@@ -66,6 +69,8 @@ def evaluate(args):
          terminate_ec2()
     elif args.ami:
          get_image()
+    elif args.password:
+         get_password()     
     elif args.version:
         print()
         print('This is version {0}.'.format(VERSION))
@@ -230,6 +235,24 @@ def fetch_public_ip():
     
    # print ("instance.ip_address")
    # print("Public IPv4 address of the EC2 instance: {0}".format(ip_address))
+
+def get_password():
+    """
+    This code is from Amazon's EC2 Boto
+    Do a dryrun first to verify permissions.
+    Try  to fetch the windows data and password.
+    """ 
+    key_path = '/Users/kapil/Downloads/cybint_staging.pem'
+    ec2_pass = boto.connect_ec2() #access_key,secret_key
+    passwd = base64.b64decode(ec2_pass.get_password_data(instance_id))
+    if (passwd):
+        with open (key_path,'r') as privkeyfile:
+            priv = rsa.PrivateKey.load_pkcs1(privkeyfile.read())
+        key = rsa.decrypt(passwd,priv)
+    else:
+        key = 'Wait at least 4 minutes after creation before the admin password is available'
+ 
+    print(key)
 
 
 def main():
